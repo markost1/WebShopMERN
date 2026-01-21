@@ -33,3 +33,32 @@ export const register = async (req,res) => {
     }
 
 }
+
+export const login = async (req,res) => {
+    const {email,password} =req.body;
+    try {
+        const findUser = await User.findOne({email});
+        if(!findUser){
+            return res.status(400).json({message:"Wrong Credential"});
+        }
+
+        const validPassword = await bcrypt.compare(password, findUser.password)
+
+        if(!validPassword){
+            return res.status(400).json({message:"Wrong Credential"});
+        }
+
+        await generateTokenSetCookie(res,findUser._id)
+
+        res.status(200).json({
+            message:"User is successfully logged in",
+            user:{
+                ...findUser._doc,
+                password:undefined
+            }
+        })
+    } catch (error) {
+        res.status(500).json({message:"Something went wrong",error:error.message})
+    }
+
+}
