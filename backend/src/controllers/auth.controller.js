@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { User } from "../models/UserModel.js";
+import { generateTokenSetCookie } from "../utils/generateTokenSetCookie.js";
 
 export const register = async (req,res) => {
     
@@ -20,6 +21,9 @@ export const register = async (req,res) => {
         }
     )
         await newUser.save();
+
+         await generateTokenSetCookie(res,newUser._id)
+
         res.status(201).json({message:"User is successfully registered"})
 
         
