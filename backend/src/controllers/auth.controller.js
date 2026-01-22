@@ -62,3 +62,14 @@ export const login = async (req,res) => {
     }
 
 }
+
+
+export const signout = (req, res) => {
+    res.cookie("token", "", {
+        expires: new Date(0),
+        httpOnly: true
+    });
+
+    res.status(200).json({ message: "Logged out" });
+};
+
