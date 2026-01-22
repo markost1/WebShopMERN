@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { User } from "../models/UserModel.js";
 import { generateTokenSetCookie } from "../utils/generateTokenSetCookie.js";
 
@@ -73,3 +74,36 @@ export const signout = (req, res) => {
     res.status(200).json({ message: "Logged out" });
 };
 
+
+export const forgotPassword = async(req,res)=>{
+    const{email} = req.body
+
+try {
+    const user = await User.findOne({email})
+    if(!user){
+        return res.status(200).json({success:true, message:"If user with that email exists, we have sent password reset instructions to that email"})
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    const resetTokenExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    user.resetPasswordToken = hashToken;
+    user.resetPasswordExpiresAt = resetTokenExpire;
+
+    await user.save();
+
+    //send the resetToken to the user's email address.
+    console.log(`Password reset token (send this to user via email): ${resetToken}`);
+
+    res.status(200).json({success:true, 
+        message:"If user with that email exists, we have sent password reset instructions to that email",
+        user:{
+            ...user._doc,
+            password:undefined,
+            resetPasswordToken:undefined,
+        }})  
+
+} catch (error) {
+    res.status(500).json({success:false, message:"Something went wrong", error:error.message})
+}}
