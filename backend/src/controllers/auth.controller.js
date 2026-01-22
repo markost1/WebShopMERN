@@ -107,3 +107,50 @@ try {
 } catch (error) {
     res.status(500).json({success:false, message:"Something went wrong", error:error.message})
 }}
+
+
+export const resetPassword = async(req,res)=>{
+    
+    const {newPassword} = req.body
+    const {token} = req.params;
+    
+     if (!newPassword) {
+        return res.status(400).json({ success: false, message: "New password is required" });
+    }
+
+    try {
+        const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+        const user = await User.findOne({
+            resetPasswordToken:hashedToken,
+            resetPasswordExpiresAt: { $gt: Date.now() },
+        })
+
+        if(!user){
+            return res.status(400).json({success:false, message:"Invalid or expired reset token"})
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword,10);
+
+        user.password = hashedPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpiresAt = undefined;  
+
+        await user.save();
+
+        // send a confirmation email to the user here
+        console.log('password is succesfully changed');
+        
+
+        res.status(200).json({success:true, message:"Password has been successfully reset",user})
+
+
+      
+
+
+    } catch (error) {
+        res.status(500).json({success:false, message:"Something went wrong", error:error.message})
+    }
+
+
+}
