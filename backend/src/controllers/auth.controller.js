@@ -14,17 +14,25 @@ export const register = async (req,res) => {
         }
 
         const hashPassword = await bcrypt.hash(password,10);
+        const verifyToken = crypto.randomBytes(32).toString("hex");
+        const hashVerifyToken = crypto.createHash("sha256").update(verifyToken).digest("hex");
+        const verifyTokenExpire = Date.now() + 24 * 60 * 60 * 1000; // 24 hours    
 
+         
         const newUser = new User({
             name,
             email,
-            password:hashPassword
-        }
+            password:hashPassword,
+            emailVerifyToken:hashVerifyToken,
+            emailVerifyExpiresAt:verifyTokenExpire,    
+        },
     )
         await newUser.save();
 
-         await generateTokenSetCookie(res,newUser._id)
-
+         
+       
+         console.log(`Email verification token (send this to user via email): ${verifyToken}`);
+        
         res.status(201).json({message:"User is successfully registered"})
 
         
@@ -41,6 +49,10 @@ export const login = async (req,res) => {
         const findUser = await User.findOne({email});
         if(!findUser){
             return res.status(400).json({message:"Wrong Credential"});
+        }
+
+        if(!findUser.isVerified){
+            return  res.status(400).json({message:"Please verify your email to login"});
         }
 
         const validPassword = await bcrypt.compare(password, findUser.password)
@@ -153,4 +165,32 @@ export const resetPassword = async(req,res)=>{
     }
 
 
+}
+
+export const verifyEmail = async (req,res) => {
+    const {token} = req.params;
+try {
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const user = await User.findOne({
+        emailVerifyToken:hashedToken,
+        emailVerifyExpiresAt: { $gt: Date.now() },
+    })
+    if(!user){
+        return res.status(400).json({success:false, message:"Invalid or expired verification token"})
+    }
+
+    user.isVerified = true;
+    user.emailVerifyToken = undefined;
+    user.emailVerifyExpiresAt = undefined;
+
+    await user.save();
+
+    res.status(200).json({success:true, message:"Email has been successfully verified",user:{
+        ...user._doc,
+        password:undefined,
+    }})
+    
+} catch (error) {
+    res.status(500).json({success:false, message:"Something went wrong", error:error.message})  
+}
 }
