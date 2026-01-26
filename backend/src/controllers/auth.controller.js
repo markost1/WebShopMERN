@@ -16,7 +16,7 @@ export const register = async (req,res) => {
         const hashPassword = await bcrypt.hash(password,10);
         const verifyToken = crypto.randomBytes(32).toString("hex");
         const hashVerifyToken = crypto.createHash("sha256").update(verifyToken).digest("hex");
-        const verifyTokenExpire = Date.now() + 24 * 60 * 60 * 1000; // 24 hours    
+        const verifyTokenExpire = Date.now() + 10  * 1000; //  1m min    
 
          
         const newUser = new User({
@@ -193,4 +193,36 @@ try {
 } catch (error) {
     res.status(500).json({success:false, message:"Something went wrong", error:error.message})  
 }
+}
+
+export const resendVertificationEmail = async(req,res)=>{
+    const{email} = req.body
+    try {
+        const user = await User.findOne({email})
+        if(!user){
+            return res.status(200).json({message:"Verification email sent if user exists"});
+
+        }
+
+        if(user.isVerified){
+            return res.status(400).json({message:"Email is already verified"})
+        }
+
+        const verifyToken = crypto.randomBytes(32).toString("hex");
+        const verifyTokenExpire = Date.now() + 24 * 60 * 60 * 1000; // 24 hours    
+        const hashVerifyToken = crypto.createHash("sha256").update(verifyToken).digest("hex");
+
+        user.emailVerifyToken = hashVerifyToken;
+        user.emailVerifyExpiresAt = verifyTokenExpire;
+
+        await user.save();
+
+        console.log(`Email verification token (send this to user via email): ${verifyToken}`);
+        
+        res.status(200).json({message:"Verification email sent if user exists"});
+
+        
+    } catch (error) {
+        res.status(500).json({message:"Something went wrong",error:error.message})
+    }
 }
