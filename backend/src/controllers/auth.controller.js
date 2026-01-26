@@ -61,7 +61,7 @@ export const login = async (req,res) => {
             return res.status(400).json({message:"Wrong Credential"});
         }
 
-        await generateTokenSetCookie(res,findUser._id)
+        await generateTokenSetCookie(res,findUser._id,findUser.isAdmin);
 
         res.status(200).json({
             message:"User is successfully logged in",
@@ -231,4 +231,8 @@ export const resendVertificationEmail = async(req,res)=>{
 export const verifyTokenTest = (req,res)=>{
     res.status(200).json({message:"Token is valid", userId:req.user.id})
     console.log("OVO JE TREUNTNI KORISNIK APLIKACIJE ", req.user.id);
+}
+
+export const adminTest = (req,res)=>{
+    res.status(200).json({message:"Admin access granted.", user:req.user})
 }
