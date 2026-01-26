@@ -16,7 +16,7 @@ export const register = async (req,res) => {
         const hashPassword = await bcrypt.hash(password,10);
         const verifyToken = crypto.randomBytes(32).toString("hex");
         const hashVerifyToken = crypto.createHash("sha256").update(verifyToken).digest("hex");
-        const verifyTokenExpire = Date.now() + 10  * 1000; //  1m min    
+        const verifyTokenExpire = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
 
          
         const newUser = new User({
@@ -225,4 +225,10 @@ export const resendVertificationEmail = async(req,res)=>{
     } catch (error) {
         res.status(500).json({message:"Something went wrong",error:error.message})
     }
+}
+
+
+export const verifyTokenTest = (req,res)=>{
+    res.status(200).json({message:"Token is valid", userId:req.user.id})
+    console.log("OVO JE TREUNTNI KORISNIK APLIKACIJE ", req.user.id);
 }
