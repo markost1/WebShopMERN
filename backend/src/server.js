@@ -1,5 +1,6 @@
 import express from 'express'
 import userRouter from './routes/user.route.js'
+import categoryRouter from './routes/category.route.js'
 import { connectDB } from './config/db.js'
 import dotenv from "dotenv";
 import cookieParser from 'cookie-parser';
@@ -11,6 +12,7 @@ app.use(express.json())
 app.use(cookieParser())
 
 app.use('/api/auth',userRouter)
+app.use('/api/category',categoryRouter)
 
 
 connectDB().then(()=>{  
