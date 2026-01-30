@@ -46,3 +46,52 @@ export const addToCart = async(req, res) => {
     
     
 }
+
+
+export const getCart = async(req,res)=>{
+    const id = req.user.id;
+
+    try {
+
+        const cart = await Cart.findOne({userId:id}).populate('products.productId'); 
+
+        if(!cart){
+            return res.status(200).json({message:"Cart is empty"});
+        }
+
+        res.status(200).json(cart);
+
+        
+    } catch (error) {
+        res.status(500).json({message:"Something went wrong", error:error.message})   
+        console.log(error);
+    }
+}
+
+export const removeFromCart = async(req,res)=>{
+    const id = req.user.id;
+    const {productId} = req.params;
+
+
+    try {
+        const cart = await Cart.findOne({userId:id})
+        if(!cart){
+            return res.status(400).json({message:"Cart not found"})
+        }
+
+        cart.products = cart.products.filter((item)=>{
+            return item.productId.toString() !== productId
+        })
+
+        await cart.save();
+
+        res.status(200).json({message:"Cart item is successfully removed",cart})
+
+
+    } catch (error) {
+        res.status(500).json({message:"Internal server error",error})
+        console.log(error);
+        
+    }
+
+}
