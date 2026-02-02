@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { type } from "os";
 
 const productSchema =  new mongoose.Schema({
     name:{
@@ -31,6 +32,10 @@ const productSchema =  new mongoose.Schema({
     brand:{
         type:String,
         required:true
+    },
+    views:{
+        type:Number,
+        default:0
     }
 }, { timestamps: true })
 

@@ -110,4 +110,28 @@ export const deleteProduct = async(req,res)=>{
         res.status(500).json({message:"Something went wrong", error:error.message})   
         console.log(error);
     }
+
 }
+
+export const viewCount = async(req,res)=>{
+    const {id} = req.params
+
+    try {
+        const products = await Product.findById(id);
+        if(!products){
+            res.status(404).json({message:"Product not found"})
+            return;
+        }
+
+        products.views += 1;
+        await products.save();
+
+        res.status(200).json({message:"View count updated", views:products.views});
+
+    } catch (error) {
+        res.status(500).json({message:"Something went wrong", error:error.message})   
+        console.log(error);
+    }
+}
+
+
