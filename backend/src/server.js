@@ -3,6 +3,7 @@ import userRouter from './routes/user.route.js'
 import categoryRouter from './routes/category.route.js'
 import productRouter from './routes/products.route.js'
 import cartRouter from './routes/cart.route.js'
+import viewedRouter from './routes/recentlyView.route.js'
 import { connectDB } from './config/db.js'
 import dotenv from "dotenv";
 import cookieParser from 'cookie-parser';
@@ -17,6 +18,7 @@ app.use('/api/auth',userRouter)
 app.use('/api/category',categoryRouter)
 app.use('/api/products',productRouter)
 app.use('/api/cart',cartRouter)
+app.use('/api/recently-viewed',viewedRouter)
 
 
 connectDB().then(()=>{  
