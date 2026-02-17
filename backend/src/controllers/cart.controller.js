@@ -1,6 +1,7 @@
 import { Cart } from "../models/CartModel.js";
 
 
+
 export const addToCart = async(req, res) => {
     const userId = req.user.id;
     const {productId, quantity} = req.body;
@@ -169,4 +170,35 @@ export const decreaseQuantity = async(req,res)=>{
         return
         
     }
+}
+
+export const saveCartCheckout = async(req,res) =>{
+    const userId = req.user.id;
+    const{shippingAddress, shippingMethod,paymentMethod} = req.body;
+    
+    try {
+        const cart = await Cart.findOne({userId})
+        if(!cart){
+            res.status(404).json({message:"Cart not found"})
+            return;
+        }
+            
+        cart.shippingAddress = shippingAddress;
+        cart.shippingMethod = shippingMethod;
+        cart.paymentMethod = paymentMethod;
+
+        
+
+       
+        await cart.save();
+
+
+        res.status(200).json({message:"Cart checkout information saved",cart})
+    } catch (error) {
+         res.status(500).json({message:"Internal server error",error})
+        console.log(error);
+        
+    }
+
+
 }

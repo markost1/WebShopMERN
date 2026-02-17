@@ -34,9 +34,19 @@ const orederSchema = new mongoose.Schema({
         },
         status:{
             type:String,
-            enum:["Pending","Shipped","Delivered","Cancelled"],
+            enum:["Pending","Completed","Cancelled"],
             default:"Pending"
-        }   
+        }, 
+        paymentMethod: {
+                type: String,
+                enum: ["card", "cash_on_delivery"],
+        },
+        paymentStatus: {
+             type: String,
+             enum: ["pending", "paid", "failed"],
+             default: "pending"
+}
+   
 },{timestamps:true});
 
 export const Order = mongoose.model("Order",orederSchema);
