@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { type } from "os";
+
 
 const productSchema =  new mongoose.Schema({
     name:{

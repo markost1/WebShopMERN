@@ -48,7 +48,7 @@ export const createProduct = async(req,res)=>{
 
 export const getAllProducts = async(req,res)=>{
 
-    const {search} = req.query;
+    const {search,minPrice,maxPrice} = req.query;
     console.log(search);
     
     
@@ -56,16 +56,31 @@ export const getAllProducts = async(req,res)=>{
 
         let query = {};
 
+        //Search Filter
         if(search && search.trim() !== ""){
             query.$or=[
                 {name:{$regex:search,$options:"i"}},
                 {description:{$regex:search,$options:"i"}},
                 {brand:{$regex:search,$options:"i"}},
-                {category:{$regex:search,$options:"i"}}
+               
             ]
         }
-         console.log(query);
+         
 
+         //min & max price filter
+
+         if(minPrice || maxPrice){
+            query.price = {}
+            if(minPrice){
+                query.price.$gte = Number(minPrice);
+            }
+            if(maxPrice){
+                query.price.$lte = Number(maxPrice);
+            }
+         }
+
+        console.log(query);
+        
         const findAll = await Product.find(query).populate('category')
         res.status(200).json(findAll);
     } catch (error) {
