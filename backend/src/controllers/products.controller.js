@@ -48,7 +48,7 @@ export const createProduct = async(req,res)=>{
 
 export const getAllProducts = async(req,res)=>{
 
-    const {search,minPrice,maxPrice} = req.query;
+    const {search,minPrice,maxPrice,brand,category} = req.query;
     console.log(search);
     
     
@@ -78,6 +78,11 @@ export const getAllProducts = async(req,res)=>{
                 query.price.$lte = Number(maxPrice);
             }
          }
+         //Brand filter
+         if(brand && brand.trim() !== ""){
+            query.brand = {$regex:brand, $options:"i"}
+         }  
+
 
         console.log(query);
         
