@@ -82,7 +82,15 @@ export const getAllProducts = async(req,res)=>{
          if(brand && brand.trim() !== ""){
             query.brand = {$regex:brand, $options:"i"}
          }  
-
+         //category filter
+            if(category && category.trim() !== ""){
+                const categoryExists = await Category.findOne({name:{$regex:category, $options:"i"}})
+                if(categoryExists){
+                    query.category = categoryExists._id;
+                }else{
+                    return res.status(400).json({message:"Category does not exist"})
+                }       
+            }
 
         console.log(query);
         
