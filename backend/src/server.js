@@ -8,10 +8,13 @@ import orderRouter from './routes/order.route.js'
 import { connectDB } from './config/db.js'
 import dotenv from "dotenv";
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 dotenv.config();
 
 
 const app = express()
+
+app.use(cors());
 app.use(express.json())
 app.use(cookieParser())
 

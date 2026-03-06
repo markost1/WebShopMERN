@@ -8,7 +8,7 @@ import SearchResults from './pages/SearchResults'
 import About from './pages/About'
 
 function App() {
-  
+ 
 
   return (
     <BrowserRouter>
